@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 class Data251Test {
@@ -18,16 +19,24 @@ class Data251Test {
     @Transactional(propagation = Propagation.REQUIRED)
     @Test
     void user() {
-        User user = userRepository.getById(1).orElseThrow();
+        User user = userRepository.getUserById(1).orElseThrow();
         assertEquals("HR", user.getDepartment().getName());
+    }
+
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Test
+    void noException() {
+        User user = userRepository.getUserById(1).orElseThrow();
+        assertEquals("HR", user.getDepartment().getName());
+//        assertThrows(org.hibernate.LazyInitializationException.class, () -> System.out.println(user.getDepartment()));
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Test
     void exception() {
         User user = userRepository.getById(1).orElseThrow();
-        assertEquals("HR", user.getDepartment().getName());
-//        assertThrows(org.hibernate.LazyInitializationException.class, () -> System.out.println(user.getDepartment()));
+//        assertEquals("HR", user.getDepartment().getName());
+        assertThrows(org.hibernate.LazyInitializationException.class, () -> System.out.println(user.getDepartment()));
     }
 
 }
